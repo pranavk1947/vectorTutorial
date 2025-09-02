@@ -69,37 +69,3 @@ class TextEmbedder:
         
         # Convert to numpy array and return first (and only) embedding
         return embeddings[0].numpy()
-    
-    def embed_batch(self, texts):
-        """
-        Embed multiple texts efficiently in a single batch.
-        
-        Args:
-            texts (list): List of strings to embed
-            
-        Returns:
-            list: List of embedding vectors
-        """
-        if not texts:
-            return []
-            
-        # Filter out empty texts
-        non_empty_texts = [text if text and text.strip() else " " for text in texts]
-        
-        # Tokenize all texts together
-        inputs = self.tokenizer(
-            non_empty_texts,
-            return_tensors="pt",
-            truncation=True,
-            padding=True,
-            max_length=512
-        )
-        
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-        
-        # Mean pooling for each text in the batch
-        embeddings = outputs.last_hidden_state.mean(dim=1)
-        
-        # Convert to list of numpy arrays
-        return [emb.numpy() for emb in embeddings]
